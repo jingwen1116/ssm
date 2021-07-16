@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.huang.dao.UserMapper">
+
+
+    <!--增-->
+    <insert id="addUser" parameterType="User">
+        insert into user(userCode, userName,userType ,password, phone, time, post)
+        VALUES (#{userCode},#{userName},#{userType},#{password},#{phone},#{time},#{post})
+    </insert>
+    <!--删-->
+    <delete id="deleteUser" parameterType="int">
+        delete from user where id=#{id}
+    </delete>
+
+    <!--改-->
+    <update id="updateUser" parameterType="User">
+        update user set userCode=#{userCode},userName=#{userName},userType=#{userType},password=#{password},phone=#{phone},time=#{time},post=#{post}
+        where id=#{id}
+    </update>
+
+    <!--查-->
+    <select id="queryUserById" resultType="User">
+        select * from user where id=#{id}
+    </select>
+
+
+    <select id="queryAllUser" resultMap="userMap">
+        select u.*,r.RoleName from user u , role r where r.UserType = u.userType
+        <if test="userName">
+            and u.userName like concat('%',#{userName},'%')
+        </if>
+        <if test="userType!=null">
+            and u.userType = #{userType}
+        </if>
+        limit #{from},#{pageSize}
+    </select>
+
+    <!--UserMap值对应-->
+    <resultMap id="userMap" type="user">
+        <id property="id" column="id"></id>
+        <id property="userCode" column="userCode"></id>
+        <id property="userName" column="userName"></id>
+        <id property="userType" column="userType"></id>
+        <id property="password" column="password"></id>
+        <id property="phone" column="phone"></id>
+        <id property="post" column="post"></id>
+    </resultMap>
+
+    <!--登录验证-->
+    <select id="checkLogin" resultType="User">
+        select * from user where userCode=#{userCode} and password=#{password}
+    </select>
+
+    <!--验证账号实现-->
+    <select id="userCode" parameterType="int">
+        select * from user where userCode=#{userCode}
+    </select>
+
+    <!--查询总人数-->
+    <select id="getUserCount" resultType="_int">
+        select count(id) from user
+        <where>
+            <if test="userName!=null">
+                userName like concat('%',#{userName},'%')
+            </if>
+            <if test="userType!=null">
+                and userType=#{userType}
+            </if>
+        </where>
+    </select>
+
+    <!--查询类型总人数-->
+    <select id="queryAllType" resultMap="userMap">
+        select * from user where userType=#{userType}
+    </select>
+
+</mapper>
